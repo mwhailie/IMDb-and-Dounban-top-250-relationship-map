@@ -1,158 +1,139 @@
-// https://observablehq.com/@mwhailie/disjoint-force-directed-graph/2@230
-export default function define(runtime, observer) {
-  const main = runtime.module();
-  const fileAttachments = new Map([["data@1.json",new URL("./files/data.json",import.meta.url)]]);
-  main.builtin("FileAttachment", runtime.fileAttachments(name => fileAttachments.get(name)));
-  main.variable(observer()).define(["md"], function(md){return(
-md`# IMDB 250 Relationship Graph
+var svg = d3.select("svg"),
+  width = +svg.attr("width"),
+  height = +svg.attr("height");
+var isTooltipHidden = true;
 
-Base on crawed data from [IMDB 250](https://www.imdb.com/chart/top/), this graph shows relationship bewteen 250 top movies, actors and directors.`
-)});
-  main.variable(observer("chart")).define("chart", ["data","d3","width","color","drag","invalidation"], function(data,d3,width,color,drag,invalidation)
-{
-  const height = 680
-  const links = data.links.map(d => Object.create(d));
-  const nodes = data.nodes.map(d => Object.create(d));
-  var isTooltipHidden = true;
+var color = d3.scaleOrdinal(d3.schemeCategory10);
 
-  const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(links).id(d => d.id))
+var simulation = d3.forceSimulation()
+      .force("link", d3.forceLink().id(function(d) { return d.id; }))
       .force("charge", d3.forceManyBody())
       .force("x", d3.forceX())
-      .force("y", d3.forceY());
+      .force("y", d3.forceY())
+      .force("center", d3.forceCenter(width / 2, height / 2));
 
-  const svg = d3.create("svg")
-      .attr("viewBox", [-width / 2, -height / 2, width, height]);
 
-  const link = svg.append("g")
-      .attr("stroke", "#999")
-      .attr("stroke-opacity", 0.6)
-    .selectAll("line")
-    .data(links)
-    .join("line")
-      .attr("stroke-width", d => Math.sqrt(d.value));
+d3.json("./files/imdb_data.json", function(error, graph) {
+  if (error) throw error;
 
-  const node = svg.append("g")
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 1.5)
-    .selectAll("circle")
-    .data(nodes)
-    .join("circle")
-      .attr("r", d => (d.group == "Movie") ? 8 : 5)
-      .attr("fill", color)
-      .call(drag(simulation))
-      .on("click", clickNode);
+  var link = svg.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(graph.links)
+            .enter().append("line")
+            .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+  var node = svg.append("g")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 1.5)
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(graph.nodes)
+            .enter().append("g")
+            .on("click", clickNode);
+
+        
+  var circles = node.append("circle")
+            .attr("r", function(d) { return (d.group == "Movie") ? 8 : 5; })
+            .attr("fill", function(d) { return color(d.group); })
+            .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+
+      // var lables = node.append("text")
+      //     .text(function(d) {
+      //       return d.id;
+      //     })
+      //     .attr('x', 6)
+      //     .attr('y', 3);
 
   node.append("title")
-      .text(d => d.id);
+    .text(function(d) { return d.id; });
 
-  simulation.on("tick", () => {
-    link
-        .attr("x1", d => d.source.x)
-        .attr("y1", d => d.source.y)
-        .attr("x2", d => d.target.x)
-        .attr("y2", d => d.target.y);
+  simulation.nodes(graph.nodes)
+          .on("tick", ticked);
 
-    node
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y)
-        .attr("href", d => "https://www.imdb.com/" + d.title);
+  simulation.force("link")
+          .links(graph.links);
+
+  function ticked() {
+        link
+          .attr("x1", function(d) { return d.source.x; })
+          .attr("y1", function(d) { return d.source.y; })
+          .attr("x2", function(d) { return d.target.x; })
+          .attr("y2", function(d) { return d.target.y; });
+
+        node
+          .attr("transform", function(d) {
+            return "translate(" + d.x + "," + d.y + ")";
+          })
+      }
   });
 
-  invalidation.then(() => simulation.stop());
-
-  var tooltip = d3.select("body")
-    .append("div")
-    .attr("class", "tooltip")
-    .style("position", "absolute")
-    .style("padding", "10px")
-    .style("z-index", "10")
-    .style("width", "400px")
-    .style("height", "150px")
-    .style("background-color", "rgba(230, 242, 255, 0.8)")
-    .style("border-radius", "5px")
-    .style("visibility", "hidden");
-
-  function clickNode(node) {
-       // update visibility
-       if (node.group == "Movie") {
-         isTooltipHidden = !isTooltipHidden;
-         var visibility = (isTooltipHidden) ? "hidden" : "visible";
-
-         // load tooltip content (if it changes based on node)
-         loadTooltipContent(node);
-
-         // place tooltip where cursor was
-         return tooltip.style("top", (d3.event.pageY -10) + "px").style("left", (d3.event.pageX + 10) + "px").style("visibility", visibility);
-       } else if (!isTooltipHidden) {
-         isTooltipHidden = true;
-         
-         return tooltip.style("top", (d3.event.pageY -10) + "px").style("left", (d3.event.pageX + 10) + "px").style("visibility", "hidden");
-       }
-  }
-  // reset nodes to not be pinned
-  function unPinNode(node) {
-     node.fx = null;
-     node.fy = null;
-  }
-  
-  // add html content to tooltip
-  function loadTooltipContent(node) {
-      var htmlContent = "<div style=\"float: right\">";
-      htmlContent += "<div style=\"float:left\">" + "<img src= \"" + node.img + "\" width=\"100\" height=\"150\" alt="+ node.id+ ">" + "<\/div>"
-      htmlContent += "<div style=\"float:left\"><a href=\"http:\\\\www.imdb.com\\" + node.link + "\">" + node.id + "<\/a>"
-      htmlContent += "<br>"
-      htmlContent += "Rank: " + node.rank
-      htmlContent += "<br>"
-      htmlContent += "Score: " + node.score
-      htmlContent += "<br>"
-      htmlContent += "Director: " + node.director
-      htmlContent += "<br>"
-      htmlContent += "Stars: " + node.actor1 + ", " + node.actor2
-      htmlContent += "<\/div><\/div>"
-      tooltip.html(htmlContent);
-  }
-
-  return svg.node();
-}
-);
-  main.variable(observer("data")).define("data", ["FileAttachment"], function(FileAttachment){return(
-FileAttachment("data@1.json").json()
-)});
-  main.variable(observer("color")).define("color", ["d3"], function(d3)
-{
-  const scale = d3.scaleOrdinal(d3.schemeCategory10);
-  return d => scale(d.group);
-}
-);
-  main.variable(observer("drag")).define("drag", ["d3"], function(d3){return(
-simulation => {
-  
   function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
     d.fy = d.y;
   }
-  
+
   function dragged(d) {
     d.fx = d3.event.x;
     d.fy = d3.event.y;
   }
-  
+
   function dragended(d) {
     if (!d3.event.active) simulation.alphaTarget(0);
     d.fx = null;
     d.fy = null;
   }
-  
-  return d3.drag()
-      .on("start", dragstarted)
-      .on("drag", dragged)
-      .on("end", dragended);
-}
-)});
-  main.variable(observer("d3")).define("d3", ["require"], function(require){return(
-require("d3@5")
-)});
-  return main;
-}
+
+
+  var tooltip = d3.select("body")
+          .append("div")
+          // .attr("class", "tooltip")
+          .attr("class", "card mb-3")
+          .style("position", "absolute")
+          // .style("padding", "10px")
+          // .style("z-index", "10")
+          .style("max-width", "800px");
+          // .style("height", "150px");
+          // .style("background-color", "rgba(230, 242, 255, 0.8)")
+          // .style("border-radius", "5px");
+
+  function clickNode(node) {
+    // update visibility
+    if (node.group == "Movie") {
+      isTooltipHidden = !isTooltipHidden;
+      var visibility = (isTooltipHidden) ? "hidden" : "visible";
+
+      // load tooltip content (if it changes based on node)
+      loadTooltipContent(node);
+
+        // place tooltip where cursor was
+      return tooltip.style("top", (d3.event.pageY -10) + "px").style("left", (d3.event.pageX + 10) + "px").style("visibility", visibility);
+    } else if (!isTooltipHidden) {
+      isTooltipHidden = true;
+      return tooltip.style("top", (d3.event.pageY -10) + "px").style("left", (d3.event.pageX + 10) + "px").style("visibility", "hidden");
+    }
+  }
+  function loadTooltipContent(node) {
+    var htmlContent = "<div class= \"row no-gutters\">";
+        htmlContent += "<div class=\"col-md-3\">" + "<img src= \"" + node.img + "\" class=\"card-img\" alt="+ node.id+ ">" + "<\/div>"
+        htmlContent += "<div class=\"col-md-9\">"
+          htmlContent += "<div class=\"card-body\">"
+            htmlContent += "<h6 class=\"card-title\">" + node.id + "</h5>"
+            htmlContent += "<p class=\"card-text\">"
+              htmlContent += "Rank: " + node.rank
+              htmlContent += " | Score: " + node.score
+              htmlContent += "<br>"
+              htmlContent += "Director: " + node.director
+            htmlContent += "<\/p>"
+            htmlContent += "<p class=\"card-text\">"
+              htmlContent += "<small sclass=\"text-muted\"><a href=\"http:\\\\www.imdb.com\\" + node.link + "\">Check This Movie in IMDb<\/a>"
+            htmlContent += "<\/p>"
+          htmlContent += "<\/div>"
+        htmlContent += "<\/div>"
+      htmlContent += "<\/div>"
+      tooltip.html(htmlContent);
+  }
