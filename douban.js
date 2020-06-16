@@ -13,7 +13,7 @@ var simulation = d3.forceSimulation()
       .force("center", d3.forceCenter(width / 2, height / 2));
 
 
-d3.json("./files/imdb_data.json", function(error, graph) {
+d3.json("./files/douban_data.json", function(error, graph) {
   if (error) throw error;
 
   var link = svg.append("g")
@@ -30,14 +30,11 @@ d3.json("./files/imdb_data.json", function(error, graph) {
             .selectAll("g")
             .data(graph.nodes)
             .enter().append("g")
-            .on("click", clickNode)
-            .on("mouseover", mouseOver)
-            .on("mousemove", function(){return tooltip2.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
-            .on("mouseout", mouseOut);
+            .on("click", clickNode);
 
         
   var circles = node.append("circle")
-            .attr("r", function(d) { return (d.group == "Movie") ? 10 : 5; })
+            .attr("r", function(d) { return (d.group == "Movie") ? 8 : 5; })
             .attr("fill", function(d) { return color(d.group); })
             .call(d3.drag()
             .on("start", dragstarted)
@@ -84,29 +81,7 @@ function dragended(d) {
     d.fy = null;
 }
 
-var tooltip2 = d3.select("body")
-  .append("div")
-  .attr("class", "badge badge-secondary")
-  .style("position", "absolute")
-  .style("z-index", "10")
-  .style("visibility", "hidden")
-  .text("this is name");
-  
-function mouseOver(node) {
-  d3.select(this).select("circle")
-    .transition()
-    .duration(500)
-    .attr("r", 20);
-  return tooltip2.style("visibility", "visible").text(node.id + " " + node.score);
-}
 
-function mouseOut(node) {
-  d3.select(this).select("circle")
-    .transition()
-    .duration(500)
-    .attr("r", (node.group == "Movie") ? 10 : 5);
-  return tooltip2.style("visibility", "hidden");
-}
 var tooltip = d3.select("body")
           .append("div")
           .attr("class", "card mb-3")

@@ -4,7 +4,7 @@ Inspired by [低分电影宇宙](https://datamuse.guokr.com/wmu), I plotted this
 
 ## DEMO
 * https://young-badlands-90395.herokuapp.com/
-* https://observablehq.com/@mwhailie/disjoint-force-directed-graph/2@230
+* https://observablehq.com/@mwhailie/disjoint-force-directed-graph/2
 
 
 ## Quick Start
@@ -18,3 +18,10 @@ python -m SimpleHTTPServer
 
 * [D3](https://d3js.org/)
 * [Bootstrap](https://getbootstrap.com/)
+
+## Known issue
+
+* Fix 403 on poster from Douban
+* Enable zoom in&out svg with mouse
+* Remove unneccessary js file
+* Data collection and analysis on imdb history
