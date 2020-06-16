@@ -19,9 +19,7 @@ python -m SimpleHTTPServer
 * [D3](https://d3js.org/)
 * [Bootstrap](https://getbootstrap.com/)
 
-## Known issue
+## TODO
 
-* Fix 403 on poster from Douban
-* Enable zoom in&out svg with mouse
-* Remove unneccessary js file
 * Data collection and analysis on imdb history
+* Enable Search Bar

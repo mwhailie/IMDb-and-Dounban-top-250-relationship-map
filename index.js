@@ -2,6 +2,8 @@ var svg = d3.select("svg"),
   width = +svg.attr("width"),
   height = +svg.attr("height");
 var isTooltipHidden = true;
+var isDouban = svg.attr("dataset") == "douban";
+var filePath = isDouban ? "./files/douban_data.json" : "./files/imdb_data.json";
 
 var color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -13,17 +15,19 @@ var simulation = d3.forceSimulation()
       .force("center", d3.forceCenter(width / 2, height / 2));
 
 
-d3.json("./files/imdb_data.json", function(error, graph) {
+d3.json(filePath, function(error, graph) {
   if (error) throw error;
 
-  var link = svg.append("g")
+  var root = svg.append("g");
+
+  var link = root.append("g")
             .attr("class", "links")
             .selectAll("line")
             .data(graph.links)
             .enter().append("line")
             .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
 
-  var node = svg.append("g")
+  var node = root.append("g")
             .attr("stroke", "#fff")
             .attr("stroke-width", 1.5)
             .attr("class", "nodes")
@@ -52,6 +56,21 @@ d3.json("./files/imdb_data.json", function(error, graph) {
 
   simulation.force("link")
           .links(graph.links);
+
+  const zoom = d3.zoom();
+    
+  zoom.on("zoom", () => {
+      const { transform } = d3.event;
+      root.attr("transform", transform);
+  });
+    
+  svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
+
+  const reset = () => {
+      svg.transition()
+            .duration(750)
+            .call(zoom.transform, d3.zoomIdentity);
+  }
 
   function ticked() {
         link
@@ -91,7 +110,8 @@ var tooltip2 = d3.select("body")
   .style("z-index", "10")
   .style("visibility", "hidden")
   .text("this is name");
-  
+
+
 function mouseOver(node) {
   d3.select(this).select("circle")
     .transition()
@@ -107,11 +127,11 @@ function mouseOut(node) {
     .attr("r", (node.group == "Movie") ? 10 : 5);
   return tooltip2.style("visibility", "hidden");
 }
+
 var tooltip = d3.select("body")
           .append("div")
           .attr("class", "card mb-3")
-          .style("position", "absolute")
-          .style("max-width", "800px");
+          .style("position", "absolute");
 
 function clickNode(node) {
     // update visibility
@@ -131,8 +151,10 @@ function clickNode(node) {
   }
 
 function loadTooltipContent(node) {
-    var htmlContent = "<div class= \"row no-gutters\">";
-        htmlContent += "<div class=\"col-md-3\">" + "<img src= \"" + node.img + "\" class=\"card-img\" alt="+ node.id+ ">" + "<\/div>"
+  var baseUrl = isDouban ? "" : "http:\\\\www.imdb.com\\";
+  var site = isDouban ? "Douban" : "IMDb";
+  var htmlContent = "<div class= \"row no-gutters\">";
+        htmlContent += "<div class=\"col-md-3\">" + "<img src= \"https://images.weserv.nl/?url=" + node.img + "\" class=\"card-img\" alt="+ node.id+ ">" + "<\/div>"
         htmlContent += "<div class=\"col-md-9\">"
           htmlContent += "<div class=\"card-body\">"
             htmlContent += "<h6 class=\"card-title\">" + node.id + "</h5>"
@@ -143,7 +165,7 @@ function loadTooltipContent(node) {
               htmlContent += "Director: " + node.director
             htmlContent += "<\/p>"
             htmlContent += "<p class=\"card-text\">"
-              htmlContent += "<small sclass=\"text-muted\"><a href=\"http:\\\\www.imdb.com\\" + node.link + "\">Check This Movie in IMDb<\/a>"
+              htmlContent += "<small sclass=\"text-muted\"><a href=\"" + baseUrl + node.link + "\">Check This Movie in " + site + "<\/a>"
             htmlContent += "<\/p>"
           htmlContent += "<\/div>"
         htmlContent += "<\/div>"
