@@ -1,9 +1,10 @@
 # IMDB 250 Relationship Graph
 
-Inspired by [低分电影宇宙](https://datamuse.guokr.com/wmu), I plotted this graph to show how [IMDb 250 top movies](https://www.imdb.com/chart/top/) are connected to each other by their actors and directors, using [D3's Disjoint Force-Directed Layout](https://observablehq.com/@d3/disjoint-force-directed-graph).
+Inspired by [低分电影宇宙](https://datamuse.guokr.com/wmu), this project is to show how [IMDb top 250 movies](https://www.imdb.com/chart/top/) and [豆瓣电影 Top 250
+](https://movie.douban.com/top250) are connected to each other by their actors and directors, using [D3's Disjoint Force-Directed Layout](https://observablehq.com/@d3/disjoint-force-directed-graph).
 
 ## DEMO
-* https://young-badlands-90395.herokuapp.com/
+* https://top-250-movie-map.herokuapp.com/index.html
 * https://observablehq.com/@mwhailie/disjoint-force-directed-graph/2
 
 
@@ -21,5 +22,6 @@ python -m SimpleHTTPServer
 
 ## TODO
 
+* Show relationship on hover
 * Data collection and analysis on imdb history
 * Enable Search Bar

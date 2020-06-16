@@ -9,7 +9,9 @@
         <title>Top 250 Movie Maps</title>
         <link href="css/styles.css" rel="stylesheet" />
         <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.min.js" crossorigin="anonymous"></script>
+
     </head>
     <style>
 
@@ -52,55 +54,70 @@
                     <div class="sb-sidenav-menu">
                         <div class="nav">
 
+                            <div class="sb-sidenav-menu-heading">About</div>
+                            <a class="nav-link active" href="imdb.html"
+                                ><div class="sb-nav-link-icon"><i class="far fa-map"></i></div>
+                                Movie Map</a
+                            >
                             <div class="sb-sidenav-menu-heading">Top 250 Maps</div>
                             <a class="nav-link" href="douban.html"
                                 ><div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                                 Douban</a
                             ><a class="nav-link" href="imdb.html"
-                                ><div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                                ><div class="sb-nav-link-icon"><i class="fab fa-imdb"></i></div>
                                 IMDb</a
                             >
 
-                            <div class="sb-sidenav-menu-heading">History</div>
-                            <a class="nav-link active" href="imdb.html"
-                                ><div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                                Dashboard</a
-                            >
                         </div>
                     </div>
                     <div class="sb-sidenav-footer">
-                        <div class="small">Logged in as:</div>
-                        Start Bootstrap
+                        <div class="sb-sidenav-menu">
+                            <div class="nav">
+                                <div class="sb-sidenav-menu-heading">&copy; Hailie 2020</div>
+                                <a class="nav-link" href="mailto:mwhailie@live.com"
+                                    ><div class="sb-nav-link-icon"><i class="fa fa-envelope"></i></div>
+                                    Email me</a>
+                                <a class="nav-link" href="https://mwhailie.github.io"
+                                    ><div class="sb-nav-link-icon"><i class="fab fa-github"></i></div>
+                                    Portfolio</a>
+                            </div>
+                        </div>
                     </div>
                 </nav>
             </div>
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid">
-                        <h1 class="mt-4">Dashboard</h1>
-                        <svg width="1000" height="1000" dataset="imdb"></svg>
-                        <script src="./index.js"></script>
-                    </div>
-                </main>
-                <footer class="py-4 bg-light mt-auto">
-                    <div class="container-fluid">
-                        <div class="d-flex align-items-center justify-content-between small">
-                            <div class="text-muted">Copyright &copy; @Hailie Ma 2020</div>
-                            <div>
-                                <a href="#">Email me</a>
-                                &middot;
-                                <a href="https://github.com/mwhailie">Github</a>
+                        <header class="py-5 bg-image-full img-responsive center-block" style="background-image: url('./files/p2572504374.jpg');">
+                            <div style="height: 200px;"></div>
+                            <div class="container text-center" style="color: white">
+                              <h1>Welcome to Movie Map</h1>
+                              <p class="lead">A study of popular movies in IMDb and douban</p>
                             </div>
+                        </header>
+                        <div class="col-lg-8 mx-auto">
+                            <br/>
+                          <h2>What is it?</h2>
+                          <p class="lead"> Inspired by <a href="https://datamuse.guokr.com/wmu">低分电影宇宙</a>, I built this site to show how <a href="imdb.html">IMDb top 250 movies</a> and <a href="douban.html">豆瓣电影 top 250</a> are connected to each other by their actors and directors. Feel free to try: </p>
+                          <ul>
+                            <li>Zoom in and out with your mouse</li>
+                            <li>Hover over a node to show the name of the movie or persion</li>
+                            <li>Click on movie nodes to show the poster, rank, director and navigate to the page</li>
+                          </ul>
+                          <p class="lead">Also check it on: </p>
+                          <ul>
+                            <li><a href="https://observablehq.com/@mwhailie/disjoint-force-directed-graph/2">Obeserver</a></li>
+                            <li><a href="https://github.com/mwhailie/IMDb-and-Dounban-top-250-relationship-map">Github</a></li>
+                          </ul>
+                        <p class="lead"> I'm in COVID-19 quarantine, and I miss cinema. </p>
                         </div>
                     </div>
-                </footer>
+                </main>
             </div>
         </div>
         <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="js/scripts.js"></script>
-        <script src="assets/demo/chart-bar-demo.js"></script>
         <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
-        <script src="assets/demo/datatables-demo.js"></script>
     </body>
 </html>
