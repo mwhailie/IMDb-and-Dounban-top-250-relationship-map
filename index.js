@@ -35,9 +35,9 @@ d3.json(filePath, function(error, graph) {
             .data(graph.nodes)
             .enter().append("g")
             .on("click", clickNode)
-            .on("mouseover", mouseOver)
+            .on("mouseover", focus)
             .on("mousemove", function(){return tooltip2.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
-            .on("mouseout", mouseOut);
+            .on("mouseout", unfocus);
 
         
   var circles = node.append("circle")
@@ -72,6 +72,38 @@ d3.json(filePath, function(error, graph) {
             .call(zoom.transform, d3.zoomIdentity);
   }
 
+  var nodeLinkStatus = {};
+  graph.links.forEach(d => {
+     nodeLinkStatus[`${d.source.index},${d.target.index}`] = 1;
+  });
+
+  function isConnected(a, b) {
+    if (nodeLinkStatus[`${a.index},${b.index}`] || nodeLinkStatus[`${b.index},${a.index}`] || a.index === b.index) {
+      console.log(a.id + b.id);
+    }
+    return nodeLinkStatus[`${a.index},${b.index}`] || nodeLinkStatus[`${b.index},${a.index}`] || a.index === b.index;
+  }
+
+  function focus(d) {
+    node.style('stroke-opacity', o => (isConnected(d, o)? 1 : 0.3))
+        .style('fill-opacity', o => (isConnected(d, o)? 1 : 0.3));
+
+    link.style('opacity', function(l) {
+       return (d === l.source || d === l.target)? 1 : 0.2;
+    });
+
+    link.style('stroke-width', function(l) {
+       return (d === l.source || d === l.target) ? 5 : 1;
+    });
+    return tooltip2.style("visibility", "visible").text((d.group == "Movie") ? (d.id + " " + d.score) : d.id);
+  }  
+  function unfocus(d) {
+    node.style('stroke-opacity', 1)
+        .style('fill-opacity', 1);
+    link.style('opacity',1);
+    link.style('stroke-width', 1);
+    return tooltip2.style("visibility", "hidden");
+  }
   function ticked() {
         link
           .attr("x1", function(d) { return d.source.x; })
