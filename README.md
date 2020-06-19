@@ -22,6 +22,5 @@ python -m SimpleHTTPServer
 
 ## TODO
 
-* Show relationship on hover
 * Data collection and analysis on imdb history
 * Enable Search Bar
