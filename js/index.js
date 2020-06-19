@@ -5,7 +5,9 @@ var isTooltipHidden = true;
 var isDouban = svg.attr("dataset") == "douban";
 var filePath = isDouban ? "./files/douban_data.json" : "./files/imdb_data.json";
 
-var color = d3.scaleOrdinal(d3.schemeCategory10);
+function color(group) {
+  return group == "Movie"? "#1F77B4": (group == "Director"? "#2DA02D" : "#FF7F0F");
+}
 
 var simulation = d3.forceSimulation()
       .force("link", d3.forceLink().id(function(d) { return d.id; }))
@@ -62,8 +64,8 @@ d3.json(filePath, function(error, graph) {
 
   var legend_data = [
     {text: "Movie", color: "#1F77B4"},
-    {text: "Director", color: "#FF7F0F"},
-    {text: "Actor", color: "#2DA02D"}
+    {text: "Director", color: "#2DA02D"},
+    {text: "Actor", color: "#FF7F0F"}
   ];
   
   const legend = root

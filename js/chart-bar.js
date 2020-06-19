@@ -34,8 +34,8 @@ var myLineChart = new Chart(ctx, {
     labels: actors,
     datasets: [{
       label: "Count",
-      backgroundColor: "rgba(45,160,45,1)",
-      borderColor: "rgba(45,160,45,1)",
+      backgroundColor: "rgba(255,127,15,1)",
+      borderColor: "rgba(255,127,15,1)",
       data: actorsCount,
     }],
   },
@@ -75,8 +75,8 @@ var directorBarChart = new Chart(ctx2, {
     labels: directors,
     datasets: [{
       label: "Count",
-      backgroundColor: "rgba(255,127,15,1)",
-      borderColor: "rgba(255,127,15,1)",
+      backgroundColor: "rgba(45,160,45,1)",
+      borderColor: "rgba(45,160,45,1)",
       data: directorsCount,
     }],
   },
