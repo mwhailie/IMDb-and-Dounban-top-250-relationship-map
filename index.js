@@ -51,6 +51,44 @@ d3.json(filePath, function(error, graph) {
   node.append("title")
     .text(function(d) { return d.id; });
 
+ var texts  = root.selectAll(".texts")
+      .data(graph.nodes)
+      .enter()
+      .append("text")
+      .attr("dx", 12)
+      .attr("dy", "0.35em")
+      .attr("visibility", "hidden")
+      .text( d => d.id );
+
+  var legend_data = [
+    {text: "Movie", color: "#1F77B4"},
+    {text: "Director", color: "#FF7F0F"},
+    {text: "Actor", color: "#2DA02D"}
+  ];
+  
+  const legend = root
+    .append('g')
+    .attr('class', 'legend')
+    .attr('transform', `translate(0,0)`)
+    .selectAll('g')
+    .data(legend_data)
+    .enter()
+    .append('g')
+    .attr('transform', function(d, i) { 
+         return 'translate('+ (10) +',' + (10+(25*i)) +')';
+    });
+  legend
+    .append('rect')
+    .attr('width', 20)
+    .attr('height', 20)
+    .style('fill', (d, i) => d.color);
+  legend
+    .append('text')
+    .text(d => d.text)
+    .attr('x', 25)
+    .attr('y', 25/2)
+    .attr('dy', 4);
+
   simulation.nodes(graph.nodes)
           .on("tick", ticked);
 
@@ -78,15 +116,14 @@ d3.json(filePath, function(error, graph) {
   });
 
   function isConnected(a, b) {
-    if (nodeLinkStatus[`${a.index},${b.index}`] || nodeLinkStatus[`${b.index},${a.index}`] || a.index === b.index) {
-      console.log(a.id + b.id);
-    }
     return nodeLinkStatus[`${a.index},${b.index}`] || nodeLinkStatus[`${b.index},${a.index}`] || a.index === b.index;
   }
 
   function focus(d) {
     node.style('stroke-opacity', o => (isConnected(d, o)? 1 : 0.3))
         .style('fill-opacity', o => (isConnected(d, o)? 1 : 0.3));
+
+    texts.style("visibility", o => (isConnected(d, o)? "visible":"hidden"));
 
     link.style('opacity', function(l) {
        return (d === l.source || d === l.target)? 1 : 0.2;
@@ -95,14 +132,14 @@ d3.json(filePath, function(error, graph) {
     link.style('stroke-width', function(l) {
        return (d === l.source || d === l.target) ? 5 : 1;
     });
-    return tooltip2.style("visibility", "visible").text((d.group == "Movie") ? (d.id + " " + d.score) : d.id);
   }  
   function unfocus(d) {
     node.style('stroke-opacity', 1)
         .style('fill-opacity', 1);
     link.style('opacity',1);
     link.style('stroke-width', 1);
-    return tooltip2.style("visibility", "hidden");
+    texts.style("visibility", "hidden");
+
   }
   function ticked() {
         link
@@ -115,6 +152,10 @@ d3.json(filePath, function(error, graph) {
           .attr("transform", function(d) {
             return "translate(" + d.x + "," + d.y + ")";
           })
+
+        texts
+          .attr("x", d => d.x)
+          .attr("y", d => d.y);
       }
 });
 
